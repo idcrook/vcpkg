@@ -12,10 +12,17 @@ vcpkg_from_github(
 
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt DESTINATION ${SOURCE_PATH})
 
+vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
+    bindings       IMGUI_COPY_BINDINGS # should only be copied once, at most
+)
+
 vcpkg_configure_cmake(
     SOURCE_PATH ${SOURCE_PATH}
     PREFER_NINJA
+    OPTIONS_RELEASE
+        ${FEATURE_OPTIONS}
     OPTIONS_DEBUG
+        -DIMGUI_COPY_BINDINGS=OFF
         -DIMGUI_SKIP_HEADERS=ON
 )
 
@@ -29,11 +36,11 @@ if ("example" IN_LIST FEATURES)
         USE_VCPKG_INTEGRATION
         PROJECT_PATH ${SOURCE_PATH}/examples/imgui_examples.sln
     )
-    
+
     # Install headers
     file(GLOB IMGUI_EXAMPLE_INCLUDES ${SOURCE_PATH}/examples/*.h)
     file(INSTALL ${IMGUI_EXAMPLE_INCLUDES} DESTINATION ${CURRENT_PACKAGES_DIR}/include)
-    
+
     # Install tools
     file(GLOB_RECURSE IMGUI_EXAMPLE_BINARIES ${SOURCE_PATH}/examples/*${VCPKG_TARGET_EXECUTABLE_SUFFIX})
     file(INSTALL ${IMGUI_EXAMPLE_BINARIES} DESTINATION ${CURRENT_PACKAGES_DIR}/tools)
